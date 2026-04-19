@@ -22,6 +22,7 @@ packaging==26.1
 pillow==12.2.0
 protobuf==7.34.1
 Pygments==2.20.0
+pyzmq==27.1.0
 requests==2.33.1
 rich==15.0.0
 setuptools==82.0.1
