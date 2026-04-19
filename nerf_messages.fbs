@@ -1,0 +1,24 @@
+namespace NerfDistributed;
+
+// request table: send from master to worker
+table RayBatch {
+  batch_id: int32;        // id to the master know with part of the image returned
+  num_rays: int32;        // number of rays in this batch (N)
+
+  rays_o: [float];        // flattened matrix of origins [N * 3]
+  rays_d: [float];        // flattened matrix of directions [N * 3]
+
+  // optional parameters
+  near: float = 2.0;
+  far: float = 6.0;
+  n_samples: int32 = 64;
+}
+
+// response table: send from the worker to the master
+table RenderResult {
+  batch_id: int32;          // returns the same ID receved in the request
+  num_rays: int32;          // confirmation of how many rays were processed
+
+  rgb_map: [float];         // flattened matrix of colors [N * 3]
+  depth_map: [float];       // flattened matrix of depth [N]
+}
