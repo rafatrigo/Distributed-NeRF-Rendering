@@ -20,12 +20,15 @@ def main():
     print("Loading model...")
     model.load_weights('data/weights.h5')
 
-    # config socket ZeroMQ (Reply/Server)
+    # config socket ZeroMQ
     context = zmq.Context()
-    socket = context.socket(zmq.REP)
-    socket.bind("tcp://*:5555")
+    socket = context.socket(zmq.REQ)
+    socket.bind("tcp://localhost:5555") #TODO: pass as a parameter
     
-    print("worker listening in port 5555. waiting for master...\n")
+    print("worker connected. requesting work...\n")
+
+    # initial handshake - signal to receive the first batch
+    socket.send(b"READY")
 
     while True:
         # rcever master's connection
@@ -35,9 +38,15 @@ def main():
         # decode using FlatBuffers (Zero-copy parse)
         # start offset is always 0
         ray_batch = RayBatch.RayBatch.GetRootAsRayBatch(message, 0)
-        
-        # extract basic data
+
         batch_id = ray_batch.BatchId()
+
+        # poison pill
+        if batch_id == -1:
+            print("[X] termination signal received (batch_id = -1). terminating...")
+            break
+
+        # extract basic data
         start_idx = ray_batch.StartIdx()
         end_idx = ray_batch.EndIdx()
         H = ray_batch.H()
@@ -106,6 +115,9 @@ def main():
         socket.send(response_bytes)
 
         print(f"[<] Response sent! ({len(response_bytes)} bytes)\n")
+
+    socket.close()
+    context.term()
 
 if __name__ == "__main__":
     main()
