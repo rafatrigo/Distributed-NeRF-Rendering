@@ -9,9 +9,10 @@ include_directories(include)
 
 # find the lib C++ of ZeroMQ
 find_package(cppzmq REQUIRED)
+find_package(Eigen3 REQUIRED)
 
 # create the executable
 add_executable(master_node src/master_node.cpp)
 
 # link the executable with the lib ZeroMQ
-target_link_libraries(master_node cppzmq flatbuffers)
+target_link_libraries(master_node cppzmq flatbuffers Eigen3::Eigen)
