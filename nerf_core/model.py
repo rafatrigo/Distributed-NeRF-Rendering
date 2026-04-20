@@ -37,6 +37,26 @@ def get_rays(H, W, focal, c2w):
     rays_o = tf.broadcast_to(c2w[:3,-1], tf.shape(rays_d))
     return rays_o, rays_d
 
+def get_rays_slice(H, W, focal, c2w, start_idx, end_idx):
+    """
+        Modified get_rays that generates the rays_o and rays_d  arrays only
+        for the specified range
+    """
+
+    # 1D array with the exact indices that should be processed
+    indices = tf.range(start_idx, end_idx, dtype=tf.int32)
+    
+    # converts a 1D index to a 2D coordinate (x,y) in the image grid
+    i = tf.cast(indices % W, tf.float32)    # column (X)
+    j = tf.cast(indices // W, tf.float32)   # line (Y)
+
+    dirs = tf.stack([(i-W*.5)/focal, -(j-H*.5)/focal, -tf.ones_like(i)], -1)
+    rays_d = tf.reduce_sum(dirs[..., tf.newaxis, :] * c2w[:3, :3], -1)
+    rays_o = tf.broadcast_to(c2w[:3, -1], tf.shape(rays_d))
+
+    return rays_o, rays_d
+
+
 def render_rays(network_fn, rays_o, rays_d, near, far, N_samples, rand=False):
 
     def batchify(fn, chunk=1024*32):
