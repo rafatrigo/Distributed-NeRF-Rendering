@@ -3,12 +3,18 @@ namespace NerfDistributed;
 // request table: send from master to worker
 table RayBatch {
   batch_id: int32;        // id to the master know with part of the image returned
-  num_rays: int32;        // number of rays in this batch (N)
 
-  rays_o: [float];        // flattened matrix of origins [N * 3]
-  rays_d: [float];        // flattened matrix of directions [N * 3]
+  // slicing (ray dispatching)
+  start_idx: int32;       // initial linear index of the cut
+  end_idx: int32;         // final linear index of the cut
 
-  // optional parameters
+  // camera settings
+  h: int32;               // image height (H)
+  w: int32;               // image width (W)
+  focal: float;           // focal distance
+  pose_matrix: [float];   // 4x4 matrix of camera pose (c2w)
+
+  // scene config
   near: float = 2.0;
   far: float = 6.0;
   n_samples: int32 = 64;

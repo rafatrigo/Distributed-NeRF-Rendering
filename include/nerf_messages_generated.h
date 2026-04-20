@@ -25,24 +25,36 @@ struct RayBatch FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef RayBatchBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_BATCH_ID = 4,
-    VT_NUM_RAYS = 6,
-    VT_RAYS_O = 8,
-    VT_RAYS_D = 10,
-    VT_NEAR = 12,
-    VT_FAR = 14,
-    VT_N_SAMPLES = 16
+    VT_START_IDX = 6,
+    VT_END_IDX = 8,
+    VT_H = 10,
+    VT_W = 12,
+    VT_FOCAL = 14,
+    VT_POSE_MATRIX = 16,
+    VT_NEAR = 18,
+    VT_FAR = 20,
+    VT_N_SAMPLES = 22
   };
   int32_t batch_id() const {
     return GetField<int32_t>(VT_BATCH_ID, 0);
   }
-  int32_t num_rays() const {
-    return GetField<int32_t>(VT_NUM_RAYS, 0);
+  int32_t start_idx() const {
+    return GetField<int32_t>(VT_START_IDX, 0);
   }
-  const ::flatbuffers::Vector<float> *rays_o() const {
-    return GetPointer<const ::flatbuffers::Vector<float> *>(VT_RAYS_O);
+  int32_t end_idx() const {
+    return GetField<int32_t>(VT_END_IDX, 0);
   }
-  const ::flatbuffers::Vector<float> *rays_d() const {
-    return GetPointer<const ::flatbuffers::Vector<float> *>(VT_RAYS_D);
+  int32_t h() const {
+    return GetField<int32_t>(VT_H, 0);
+  }
+  int32_t w() const {
+    return GetField<int32_t>(VT_W, 0);
+  }
+  float focal() const {
+    return GetField<float>(VT_FOCAL, 0.0f);
+  }
+  const ::flatbuffers::Vector<float> *pose_matrix() const {
+    return GetPointer<const ::flatbuffers::Vector<float> *>(VT_POSE_MATRIX);
   }
   float near() const {
     return GetField<float>(VT_NEAR, 2.0f);
@@ -56,11 +68,13 @@ struct RayBatch FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<int32_t>(verifier, VT_BATCH_ID, 4) &&
-           VerifyField<int32_t>(verifier, VT_NUM_RAYS, 4) &&
-           VerifyOffset(verifier, VT_RAYS_O) &&
-           verifier.VerifyVector(rays_o()) &&
-           VerifyOffset(verifier, VT_RAYS_D) &&
-           verifier.VerifyVector(rays_d()) &&
+           VerifyField<int32_t>(verifier, VT_START_IDX, 4) &&
+           VerifyField<int32_t>(verifier, VT_END_IDX, 4) &&
+           VerifyField<int32_t>(verifier, VT_H, 4) &&
+           VerifyField<int32_t>(verifier, VT_W, 4) &&
+           VerifyField<float>(verifier, VT_FOCAL, 4) &&
+           VerifyOffset(verifier, VT_POSE_MATRIX) &&
+           verifier.VerifyVector(pose_matrix()) &&
            VerifyField<float>(verifier, VT_NEAR, 4) &&
            VerifyField<float>(verifier, VT_FAR, 4) &&
            VerifyField<int32_t>(verifier, VT_N_SAMPLES, 4) &&
@@ -75,14 +89,23 @@ struct RayBatchBuilder {
   void add_batch_id(int32_t batch_id) {
     fbb_.AddElement<int32_t>(RayBatch::VT_BATCH_ID, batch_id, 0);
   }
-  void add_num_rays(int32_t num_rays) {
-    fbb_.AddElement<int32_t>(RayBatch::VT_NUM_RAYS, num_rays, 0);
+  void add_start_idx(int32_t start_idx) {
+    fbb_.AddElement<int32_t>(RayBatch::VT_START_IDX, start_idx, 0);
   }
-  void add_rays_o(::flatbuffers::Offset<::flatbuffers::Vector<float>> rays_o) {
-    fbb_.AddOffset(RayBatch::VT_RAYS_O, rays_o);
+  void add_end_idx(int32_t end_idx) {
+    fbb_.AddElement<int32_t>(RayBatch::VT_END_IDX, end_idx, 0);
   }
-  void add_rays_d(::flatbuffers::Offset<::flatbuffers::Vector<float>> rays_d) {
-    fbb_.AddOffset(RayBatch::VT_RAYS_D, rays_d);
+  void add_h(int32_t h) {
+    fbb_.AddElement<int32_t>(RayBatch::VT_H, h, 0);
+  }
+  void add_w(int32_t w) {
+    fbb_.AddElement<int32_t>(RayBatch::VT_W, w, 0);
+  }
+  void add_focal(float focal) {
+    fbb_.AddElement<float>(RayBatch::VT_FOCAL, focal, 0.0f);
+  }
+  void add_pose_matrix(::flatbuffers::Offset<::flatbuffers::Vector<float>> pose_matrix) {
+    fbb_.AddOffset(RayBatch::VT_POSE_MATRIX, pose_matrix);
   }
   void add_near(float near) {
     fbb_.AddElement<float>(RayBatch::VT_NEAR, near, 2.0f);
@@ -107,9 +130,12 @@ struct RayBatchBuilder {
 inline ::flatbuffers::Offset<RayBatch> CreateRayBatch(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     int32_t batch_id = 0,
-    int32_t num_rays = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<float>> rays_o = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<float>> rays_d = 0,
+    int32_t start_idx = 0,
+    int32_t end_idx = 0,
+    int32_t h = 0,
+    int32_t w = 0,
+    float focal = 0.0f,
+    ::flatbuffers::Offset<::flatbuffers::Vector<float>> pose_matrix = 0,
     float near = 2.0f,
     float far = 6.0f,
     int32_t n_samples = 64) {
@@ -117,9 +143,12 @@ inline ::flatbuffers::Offset<RayBatch> CreateRayBatch(
   builder_.add_n_samples(n_samples);
   builder_.add_far(far);
   builder_.add_near(near);
-  builder_.add_rays_d(rays_d);
-  builder_.add_rays_o(rays_o);
-  builder_.add_num_rays(num_rays);
+  builder_.add_pose_matrix(pose_matrix);
+  builder_.add_focal(focal);
+  builder_.add_w(w);
+  builder_.add_h(h);
+  builder_.add_end_idx(end_idx);
+  builder_.add_start_idx(start_idx);
   builder_.add_batch_id(batch_id);
   return builder_.Finish();
 }
@@ -127,20 +156,25 @@ inline ::flatbuffers::Offset<RayBatch> CreateRayBatch(
 inline ::flatbuffers::Offset<RayBatch> CreateRayBatchDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     int32_t batch_id = 0,
-    int32_t num_rays = 0,
-    const std::vector<float> *rays_o = nullptr,
-    const std::vector<float> *rays_d = nullptr,
+    int32_t start_idx = 0,
+    int32_t end_idx = 0,
+    int32_t h = 0,
+    int32_t w = 0,
+    float focal = 0.0f,
+    const std::vector<float> *pose_matrix = nullptr,
     float near = 2.0f,
     float far = 6.0f,
     int32_t n_samples = 64) {
-  auto rays_o__ = rays_o ? _fbb.CreateVector<float>(*rays_o) : 0;
-  auto rays_d__ = rays_d ? _fbb.CreateVector<float>(*rays_d) : 0;
+  auto pose_matrix__ = pose_matrix ? _fbb.CreateVector<float>(*pose_matrix) : 0;
   return NerfDistributed::CreateRayBatch(
       _fbb,
       batch_id,
-      num_rays,
-      rays_o__,
-      rays_d__,
+      start_idx,
+      end_idx,
+      h,
+      w,
+      focal,
+      pose_matrix__,
       near,
       far,
       n_samples);

@@ -32,89 +32,90 @@ class RayBatch(object):
         return 0
 
     # RayBatch
-    def NumRays(self):
+    def StartIdx(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(6))
         if o != 0:
             return self._tab.Get(flatbuffers.number_types.Int32Flags, o + self._tab.Pos)
         return 0
 
     # RayBatch
-    def RaysO(self, j):
+    def EndIdx(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(8))
+        if o != 0:
+            return self._tab.Get(flatbuffers.number_types.Int32Flags, o + self._tab.Pos)
+        return 0
+
+    # RayBatch
+    def H(self):
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(10))
+        if o != 0:
+            return self._tab.Get(flatbuffers.number_types.Int32Flags, o + self._tab.Pos)
+        return 0
+
+    # RayBatch
+    def W(self):
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(12))
+        if o != 0:
+            return self._tab.Get(flatbuffers.number_types.Int32Flags, o + self._tab.Pos)
+        return 0
+
+    # RayBatch
+    def Focal(self):
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(14))
+        if o != 0:
+            return self._tab.Get(flatbuffers.number_types.Float32Flags, o + self._tab.Pos)
+        return 0.0
+
+    # RayBatch
+    def PoseMatrix(self, j):
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(16))
         if o != 0:
             a = self._tab.Vector(o)
             return self._tab.Get(flatbuffers.number_types.Float32Flags, a + flatbuffers.number_types.UOffsetTFlags.py_type(j * 4))
         return 0
 
     # RayBatch
-    def RaysOAsNumpy(self):
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(8))
+    def PoseMatrixAsNumpy(self):
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(16))
         if o != 0:
             return self._tab.GetVectorAsNumpy(flatbuffers.number_types.Float32Flags, o)
         return 0
 
     # RayBatch
-    def RaysOLength(self):
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(8))
+    def PoseMatrixLength(self):
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(16))
         if o != 0:
             return self._tab.VectorLen(o)
         return 0
 
     # RayBatch
-    def RaysOIsNone(self):
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(8))
-        return o == 0
-
-    # RayBatch
-    def RaysD(self, j):
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(10))
-        if o != 0:
-            a = self._tab.Vector(o)
-            return self._tab.Get(flatbuffers.number_types.Float32Flags, a + flatbuffers.number_types.UOffsetTFlags.py_type(j * 4))
-        return 0
-
-    # RayBatch
-    def RaysDAsNumpy(self):
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(10))
-        if o != 0:
-            return self._tab.GetVectorAsNumpy(flatbuffers.number_types.Float32Flags, o)
-        return 0
-
-    # RayBatch
-    def RaysDLength(self):
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(10))
-        if o != 0:
-            return self._tab.VectorLen(o)
-        return 0
-
-    # RayBatch
-    def RaysDIsNone(self):
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(10))
+    def PoseMatrixIsNone(self):
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(16))
         return o == 0
 
     # RayBatch
     def Near(self):
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(12))
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(18))
         if o != 0:
             return self._tab.Get(flatbuffers.number_types.Float32Flags, o + self._tab.Pos)
         return 2.0
 
     # RayBatch
     def Far(self):
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(14))
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(20))
         if o != 0:
             return self._tab.Get(flatbuffers.number_types.Float32Flags, o + self._tab.Pos)
         return 6.0
 
     # RayBatch
     def NSamples(self):
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(16))
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(22))
         if o != 0:
             return self._tab.Get(flatbuffers.number_types.Int32Flags, o + self._tab.Pos)
         return 64
 
 def RayBatchStart(builder):
-    builder.StartObject(7)
+    builder.StartObject(10)
 
 def Start(builder):
     RayBatchStart(builder)
@@ -125,50 +126,62 @@ def RayBatchAddBatchId(builder, batchId):
 def AddBatchId(builder, batchId):
     RayBatchAddBatchId(builder, batchId)
 
-def RayBatchAddNumRays(builder, numRays):
-    builder.PrependInt32Slot(1, numRays, 0)
+def RayBatchAddStartIdx(builder, startIdx):
+    builder.PrependInt32Slot(1, startIdx, 0)
 
-def AddNumRays(builder, numRays):
-    RayBatchAddNumRays(builder, numRays)
+def AddStartIdx(builder, startIdx):
+    RayBatchAddStartIdx(builder, startIdx)
 
-def RayBatchAddRaysO(builder, raysO):
-    builder.PrependUOffsetTRelativeSlot(2, flatbuffers.number_types.UOffsetTFlags.py_type(raysO), 0)
+def RayBatchAddEndIdx(builder, endIdx):
+    builder.PrependInt32Slot(2, endIdx, 0)
 
-def AddRaysO(builder, raysO):
-    RayBatchAddRaysO(builder, raysO)
+def AddEndIdx(builder, endIdx):
+    RayBatchAddEndIdx(builder, endIdx)
 
-def RayBatchStartRaysOVector(builder, numElems):
+def RayBatchAddH(builder, h):
+    builder.PrependInt32Slot(3, h, 0)
+
+def AddH(builder, h):
+    RayBatchAddH(builder, h)
+
+def RayBatchAddW(builder, w):
+    builder.PrependInt32Slot(4, w, 0)
+
+def AddW(builder, w):
+    RayBatchAddW(builder, w)
+
+def RayBatchAddFocal(builder, focal):
+    builder.PrependFloat32Slot(5, focal, 0.0)
+
+def AddFocal(builder, focal):
+    RayBatchAddFocal(builder, focal)
+
+def RayBatchAddPoseMatrix(builder, poseMatrix):
+    builder.PrependUOffsetTRelativeSlot(6, flatbuffers.number_types.UOffsetTFlags.py_type(poseMatrix), 0)
+
+def AddPoseMatrix(builder, poseMatrix):
+    RayBatchAddPoseMatrix(builder, poseMatrix)
+
+def RayBatchStartPoseMatrixVector(builder, numElems):
     return builder.StartVector(4, numElems, 4)
 
-def StartRaysOVector(builder, numElems):
-    return RayBatchStartRaysOVector(builder, numElems)
-
-def RayBatchAddRaysD(builder, raysD):
-    builder.PrependUOffsetTRelativeSlot(3, flatbuffers.number_types.UOffsetTFlags.py_type(raysD), 0)
-
-def AddRaysD(builder, raysD):
-    RayBatchAddRaysD(builder, raysD)
-
-def RayBatchStartRaysDVector(builder, numElems):
-    return builder.StartVector(4, numElems, 4)
-
-def StartRaysDVector(builder, numElems):
-    return RayBatchStartRaysDVector(builder, numElems)
+def StartPoseMatrixVector(builder, numElems):
+    return RayBatchStartPoseMatrixVector(builder, numElems)
 
 def RayBatchAddNear(builder, near):
-    builder.PrependFloat32Slot(4, near, 2.0)
+    builder.PrependFloat32Slot(7, near, 2.0)
 
 def AddNear(builder, near):
     RayBatchAddNear(builder, near)
 
 def RayBatchAddFar(builder, far):
-    builder.PrependFloat32Slot(5, far, 6.0)
+    builder.PrependFloat32Slot(8, far, 6.0)
 
 def AddFar(builder, far):
     RayBatchAddFar(builder, far)
 
 def RayBatchAddNSamples(builder, nSamples):
-    builder.PrependInt32Slot(6, nSamples, 64)
+    builder.PrependInt32Slot(9, nSamples, 64)
 
 def AddNSamples(builder, nSamples):
     RayBatchAddNSamples(builder, nSamples)
