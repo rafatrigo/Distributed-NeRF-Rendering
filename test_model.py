@@ -1,5 +1,8 @@
 import imageio
+import time
 import numpy as np
+import csv
+import os
 from tqdm import tqdm
 
 from nerf_core.model import init_model, pose_spherical, render_rays, get_rays
@@ -17,38 +20,45 @@ if __name__ == "__main__":
 
     print("Initing model...")
 
-    model.load_weights('data/weights.h5')
+    csv_file = "single_machine_metrics.csv"
 
-    print("Loading model...")
 
-    H, W = 100, 100 # Image resolution
-    focal = 138.88
+    loop_count = 0
+    while(loop_count < 10):
+        start = time.perf_counter()
 
-    # print("Creating video...")
-    #
-    # for th in tqdm(np.linspace(0., 360., 120, endpoint=False)):
-    #     c2w = pose_spherical(th, -30., 4.)
-    #     rays_o, rays_d = get_rays(H, W, focal, c2w[:3,:4])
-    #     rgb_map, depth_map, acc_map= render_rays(model, rays_o, rays_d, near=2., far=6., N_samples=64)
-    #     frames.append((255*np.clip(rgb_map,0,1)).astype(np.uint8))
-    #
-    # f = 'video.mp4'
-    # imageio.mimwrite(f, frames, fps=30, quality=7)
+        model.load_weights('data/weights.h5')
 
-    print("Creating image...")
+        print("Loading model...")
 
-    #camera position
-    horizontal_angle = 45.0
-    c2w = pose_spherical(horizontal_angle, -30., 4.)
+        H, W = 100, 100 # Image resolution
+        focal = 138.88
+        frames = []
+        print("Creating video...")
+        for th in tqdm(np.linspace(0., 360., 120, endpoint=False)):
+            c2w = pose_spherical(th, -30., 4.)
+            rays_o, rays_d = get_rays(H, W, focal, c2w[:3,:4])
+            rgb_map, depth_map, acc_map= render_rays(model, rays_o, rays_d, near=2., far=6., N_samples=64)
+            frames.append((255*np.clip(rgb_map,0,1)).astype(np.uint8))
+        
+        end = time.perf_counter()
 
-    rays_o, rays_d = get_rays(H, W, focal, c2w[:3,:4])
-    rgb_map, depth_map, acc_map = render_rays(model, rays_o, rays_d, near=2., far=6., N_samples=64,)
-    
-    img_final = np.clip(rgb_map.numpy(), 0, 1)
+        total_time = end - start
 
-    # convert float [0, 1] to integer [0, 255]
-    img_uint8 = (img_final*255).astype(np.uint8)
+        # verify if file exist
+        arquivo_existe = os.path.isfile(csv_file)
 
-    # save image
-    imageio.imwrite('data/img_final.png', img_uint8)
+        with open(csv_file, "a", newline="") as file:
+            writer = csv.writer(file)
+
+            # write the header only in the first time
+            if not arquivo_existe:
+                writer.writerow(["num_workers","image_width","image_height","execution_time_ms"])
+
+            # write data
+            writer.writerow([1,W, H, total_time*1000])
+
+    f = 'video.mp4'
+    imageio.mimwrite(f, frames, fps=30, quality=7)
+
 
